@@ -1,4 +1,4 @@
 # arduinoimumouse
-Using an integrated IMU on Arduino Nano 33 IOT as an USB mouse. Mouse X-Y moving and lift-off detection is working.
+Using an integrated IMU on Arduino Nano 33 IOT as an USB mouse. Mouse X-Y moving and lift-off detection is working. Assumes that Arduino is attached to a weight slab that keeps the circuit board level on a surface or desktop.
 
 Current implementation does not have any mouse buttons or wheel functionality, also IMU accelerometer position algorithm should be updated to more proper model.
