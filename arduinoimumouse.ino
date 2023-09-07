@@ -13,7 +13,7 @@ void setup() {
 void loop() {
   float x, y, z; float fps; float dx, dy, dz, dt, dt2; int mx, my; bool mousemove = false; bool mouselift = false; unsigned long ntime = micros();
   if (IMU.accelerationAvailable()) {
-      IMU.readAcceleration(y, x, z); fps = IMU.accelerationSampleRate(); dt=1.0f/fps; dt2=dt*dt; x=-x;
+      IMU.readAcceleration(y, x, z); fps = IMU.accelerationSampleRate(); dt=1.0f/fps; dt2=dt*dt;
       ax=dec*ax+(1.0f-dec)*x; ay=dec*ay+(1.0f-dec)*y; az=dec*az+(1.0f-dec)*z; dx=x-ax; dy=y-ay; dz=z-az;
       if (abs(dx)>tol) { mx=mlt*0.5*dx*dt2; mousemove = true; }
       if (abs(dy)>tol) { my=mlt*0.5*dy*dt2; mousemove = true; }
