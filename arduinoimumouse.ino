@@ -1,13 +1,16 @@
 //#include <Mouse.h>
 #include <Arduino_LSM6DS3.h>
 #define grav 9.82f
-#define bufs 10
+#define bufs 4
 #define movelim 0.1f
 #define liftlim 0.1f
-char buffer[100];
+#define movemult 10.0f
+char buffer[200];
 unsigned long pstime=0, cstime=0;
+float mousex=0, mousey=0;
 float x=0, y=0, z=0, f=IMU.accelerationSampleRate(), dt=1.0f/f;
 float dx=0, dy=0, dz=0;
+float sx=0, sy=0;
 float dxarray[bufs], dyarray[bufs], dzarray[bufs];
 int arrayind = 0;
 void setup() {
@@ -23,7 +26,7 @@ void setup() {
 void loop() {
   bool mousemove = false, mouselift = false;
   pstime = cstime; cstime = micros();
-  unsigned long ds = cstime - pstime;
+  float ds = (cstime - pstime)/1000000.0f;
   if (IMU.accelerationAvailable()) {
       IMU.readAcceleration(y, x, z);
       dx = grav*x;
@@ -39,26 +42,27 @@ void loop() {
       float xs = stdev(dxarray, bufs);
       float ys = stdev(dyarray, bufs);
       float zs = stdev(dzarray, bufs);
-      if ((xs>movelim)||(ys>movelim)) {
-        mousemove = true;
-      }
+      dx -= xm;
+      dy -= ym;
+      dz -= zm;
+      sx += (dx*ds);
+      sy += (dy*ds);
       if (zs>movelim) {
         mouselift = true;
-      }
-      if (mouselift) {
+        sx = 0; sy = 0;
         digitalWrite(LED_BUILTIN, HIGH);
-        sprintf(buffer,"%lu: mouselift",cstime);
-        Serial.println(buffer);
-      } else if (mousemove) {
+      } else if ((xs>movelim)||(ys>movelim)) {
         digitalWrite(LED_BUILTIN, HIGH);
-        sprintf(buffer,"%lu: mousemove",cstime);
-        Serial.println(buffer);
+        mousemove = true;
       } else {
+        sx = 0; sy = 0;
         digitalWrite(LED_BUILTIN, LOW);
-        sprintf(buffer,"%lu: .........",cstime);
-        Serial.println(buffer);
       }
-      //sprintf(buffer, "ds: %luus, dxm: %d(%d)um/s^2, dym: %d(%d)um/s^2, dzm: %d(%d)um/s^2, dt: %dus",ds,(int)(xm*1000000),(int)(xs*1000000),(int)(ym*1000000),(int)(ys*1000000),(int)(zm*1000000),(int)(zs*1000000),(int)(dt*1000000));
+      mousex += (sx*ds*movemult);
+      mousey += (sy*ds*movemult);
+      sprintf(buffer,"%lu: mousemove mousex: %d, mousey: %d",cstime,(int)(mousex*1000000.0f),(int)(mousey*1000000.0f));
+      Serial.println(buffer);
+      //sprintf(buffer, "ds: %dus, dx: %d(%d)um/s^2, dy: %d(%d)um/s^2, dz: %d(%d)um/s^2, dt: %dus",(int)(ds*1000000.0f),(int)(dx*1000000.0f),(int)(xs*1000000.0f),(int)(dy*1000000.0f),(int)(ys*1000000.0f),(int)(dz*1000000.0f),(int)(zs*1000000.0f),(int)(dt*1000000.0f));
       //Serial.println(buffer);
   }
 }
