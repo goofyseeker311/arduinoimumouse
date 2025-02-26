@@ -1,9 +1,10 @@
 //#include <Mouse.h>
 #include <Arduino_LSM6DS3.h>
 #define grav 9.82f
-#define bufs 50
+#define bufs 10
 #define movelim 0.1f
 #define liftlim 0.1f
+char buffer[100];
 unsigned long pstime=0, cstime=0;
 float x=0, y=0, z=0, f=IMU.accelerationSampleRate(), dt=1.0f/f;
 float dx=0, dy=0, dz=0;
@@ -46,18 +47,20 @@ void loop() {
       }
       if (mouselift) {
         digitalWrite(LED_BUILTIN, HIGH);
-        Serial.println("mouselift");
+        sprintf(buffer,"%lu: mouselift",cstime);
+        Serial.println(buffer);
       } else if (mousemove) {
         digitalWrite(LED_BUILTIN, HIGH);
-        Serial.println("mousemove");
+        sprintf(buffer,"%lu: mousemove",cstime);
+        Serial.println(buffer);
       } else {
         digitalWrite(LED_BUILTIN, LOW);
+        sprintf(buffer,"%lu: .........",cstime);
+        Serial.println(buffer);
       }
-      char buffer[100];
-      sprintf(buffer, "ds: %luus, dxm: %d(%d)um/s^2, dym: %d(%d)um/s^2, dzm: %d(%d)um/s^2, dt: %dus",ds,(int)(xm*1000000),(int)(xs*1000000),(int)(ym*1000000),(int)(ys*1000000),(int)(zm*1000000),(int)(zs*1000000),(int)(dt*1000000));
-      Serial.println(buffer);
+      //sprintf(buffer, "ds: %luus, dxm: %d(%d)um/s^2, dym: %d(%d)um/s^2, dzm: %d(%d)um/s^2, dt: %dus",ds,(int)(xm*1000000),(int)(xs*1000000),(int)(ym*1000000),(int)(ys*1000000),(int)(zm*1000000),(int)(zs*1000000),(int)(dt*1000000));
+      //Serial.println(buffer);
   }
-  delay(5);
 }
 float mean(float* data, int size) {
   float meanval = 0;
